@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Linq;
+
+public class Program
+{
+    public static void Main()
+    {
+        try
+        {
+            int.TryParse(Console.ReadLine(), out int days);
+            string input = "";
+            List<ClassDetails> classes = null;
+
+            RegexOptions options = RegexOptions.None;
+            Regex regex = new Regex("[ ]{2,}", options);
+            
+            while (days > 0)
+            {
+                classes = new List<ClassDetails>();
+                int.TryParse(Console.ReadLine(), out int classesPerDay);
+
+                while (classesPerDay > 0)
+                {
+                    input = Console.ReadLine();
+                    input = regex.Replace(input, " ");                 
+
+                    if (input.Trim().Length > 0)
+                    {
+                        var sections = input.Trim().Split(' ');
+                        if (sections.Length == 3)
+                        {
+                            var classDetails = new ClassDetails();
+                            classDetails.Subject = sections[0];
+                            classDetails.StartTime = DateTime.ParseExact(sections[1], "HH:mm", System.Globalization.CultureInfo.CurrentCulture);
+                            classDetails.EndTime = DateTime.ParseExact(sections[2], "HH:mm", System.Globalization.CultureInfo.CurrentCulture);
+                            classes.Add(classDetails);
+                        }
+                    }
+                    
+
+                    classesPerDay--;
+                }
+                if (classes.Count > 0)
+                {
+                    classes = classes.OrderBy(x => x.EndTime - x.StartTime).ToList();
+                    int count = 0; DateTime classEndTime = classes[0].StartTime;
+                    foreach (var c in classes)
+                    {
+                        if (TimeSpan.Compare(c.StartTime.TimeOfDay, classEndTime.TimeOfDay) > -1)
+                        {
+                            count++;
+                            classEndTime = c.EndTime;
+                        }
+                    }
+                    Console.WriteLine(count);
+                }
+                days--;
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+
+}
+public class ClassDetails
+{
+    public string Subject = "";
+    public DateTime StartTime = DateTime.Now;
+    public DateTime EndTime = DateTime.Now;
+}
